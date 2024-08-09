@@ -1,0 +1,94 @@
+first install this library so that everything works for you:'pip install ttkbootstrap'
+then follow this code.
+
+import webbrowser
+from ttkbootstrap import Style
+import tkinter as tk
+from tkinter import ttk
+
+class LinkApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Ссылки")
+        self.root.geometry("800x450")
+        self.root.resizable(False, False)
+
+        # Словарь с категориями и ссылками
+        self.links = {
+            "Видеохостинги": {
+                "PLVideo": "http://plvideo.ru",
+                "Twitch": "http://twitch.tv",
+                "RuTube": "https://rutube.ru",
+                "YouTube": "https://www.youtube.com",
+            },
+            "Кино": {
+                "КиноПоиск": "https://www.kinopoisk.ru",
+                "Премьер": "https://www.kinopremier.ru",
+                "Окко": "https://okko.tv",
+            },
+            "Браузеры": {
+                "Firefox": "https://www.mozilla.org/ru/firefox/new/",
+                "Google Chrome": "https://www.google.com/chrome/",
+                "Яндекс": "https://browser.yandex.ru/",
+            }
+        }
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        title_label = ttk.Label(self.root, text="Ссылки", font=("Helvetica", 24, 'bold'))
+        title_label.pack(pady=20)
+
+        # Поле для поиска
+        self.search_var = tk.StringVar()
+        search_entry = ttk.Entry(self.root, textvariable=self.search_var, font=("Helvetica", 14))
+        search_entry.pack(pady=10, padx=20, fill='x')
+
+        search_button = ttk.Button(self.root, text="Поиск", command=self.search_links)
+        search_button.pack(pady=5)
+
+        # Создание кнопок для каждой категории
+        self.buttons_frame = ttk.Frame(self.root)
+        self.buttons_frame.pack(pady=20, fill='both', expand=True)
+
+        self.create_buttons()
+
+    def create_buttons(self):
+        for widget in self.buttons_frame.winfo_children():
+            widget.destroy()
+
+        for category, links in self.links.items():
+            category_label = ttk.Label(self.buttons_frame, text=category, font=("Helvetica", 18, 'bold'))
+            category_label.pack(pady=(10, 5))
+
+            for name, url in links.items():
+                button = ttk.Button(self.buttons_frame, text=name, command=lambda l=url: self.open_link(l), bootstyle="success")
+                button.pack(pady=5, padx=20, fill='x')
+
+    def open_link(self, url):
+        webbrowser.open(url)
+
+    def search_links(self):
+        query = self.search_var.get().lower()
+        filtered_links = {}
+
+        for category, links in self.links.items():
+            filtered_links[category] = {name: url for name, url in links.items() if query in name.lower()}
+
+        # Обновляем кнопки в соответствии с результатами поиска
+        self.create_buttons()
+
+        for category, links in filtered_links.items():
+            if links:
+                category_label = ttk.Label(self.buttons_frame, text=category, font=("Helvetica", 18, 'bold'))
+                category_label.pack(pady=(10, 5))
+
+                for name, url in links.items():
+                    button = ttk.Button(self.buttons_frame, text=name, command=lambda l=url: self.open_link(l), bootstyle="info")
+                    button.pack(pady=5, padx=20, fill='x')
+
+if __name__ == "__main__":
+    style = Style(theme="flatly")  # Выбор темы
+    root = style.master
+    app = LinkApp(root)
+    root.mainloop()
